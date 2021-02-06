@@ -1,7 +1,6 @@
 node_modules/
 database.sqlite
 .eslintrc.json
-img/
-cardsimg/
 dbinit.js
 config.json
+droptables.js

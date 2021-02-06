@@ -1,14 +1,13 @@
-const UserObj = (require('../classes/User.js'));
+const { Users } = require('../dbObjects');
 module.exports = {
 	name: 'daily',
-	description: 'get your daily dose of coins!',
+	description: 'get your daily coins!',
 	aliases: ['d'],
 	async execute(message, args) {
-		const User = new UserObj(message.author);
-		user = await User.get();
+		let user = await Users.findOne({ where: { id: message.author.id }});
 		if (user === null){
-			await User.create();
-			user = await User.get();
+			user = await Users.create({ id: message.author.id });
+			console.log('New User created!');
 		}
 		const timePassed = Math.abs(Math.floor((user.dailyStamp - Date.now()) / (1000*60*60)));
 		if (timePassed > 24) {
@@ -18,21 +17,13 @@ module.exports = {
 				user.balance += 200;
 				user.dailyStreak = 0;
 				user.dailyStamp = Date.now();
-				Promise.all([
-					User.setStreak(user.dailyStreak),
-					User.setDaily(user.dailyStamp),
-					User.setMoney(user.balance)
-				]).then(()=>{
+				user.save().then(()=>{
 					message.channel.send(`100 coins have been added.\nYou reached 5 day daily streak. 100 additional coins have been added.\nYour balance is now ${user.balance}.`);
 				}).catch((e) => {console.log(e)});
 			} else {
 				user.balance += 100;
 				user.dailyStamp = Date.now();
-				Promise.all([
-					User.setStreak(user.dailyStreak),
-					User.setDaily(user.dailyStamp),
-					User.setMoney(user.balance)
-				]).then(()=>{
+				user.save().then(()=>{
 					message.channel.send(`100 coins have been added, your balance is now ${user.balance}.\nYour daily streak is ${user.dailyStreak}. Reach streak 5 to receive bonus coins!`);
 				}).catch((e) => {console.log(e)});
 			}

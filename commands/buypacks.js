@@ -1,5 +1,5 @@
-const UserObj = (require('../classes/User.js'));
 const { PacksShop } = require('../dbObjects');
+const { Users } = require('../dbObjects');
 const { Op } = require('sequelize');
 module.exports = {
 	name: 'buypacks',
@@ -10,11 +10,10 @@ module.exports = {
 			const pack = await PacksShop.findOne({ where: { id: { [Op.like]: args[0]} } });
 			if (!pack) return message.channel.send(`That pack doesn't exist. To see list of available packs use []buypacks list`);
 			const amount = Number.isInteger(+args[1]) ? args[1] : 1;
-			const User = new UserObj(message.author);
-			user = await User.get();
+			let user = await Users.findOne({ where: { id: message.author.id }});
 			if (user === null){
-				await User.create();
-				user = await User.get();
+				user = await Users.create({ id: message.author.id });
+				console.log('New User created!');
 			}
 			if (pack.price*amount > user.balance){
 				return message.channel.send(`You currently have only ${user.balance} coins, you need ${pack.price*amount} coins to make this purchase.`);
@@ -22,11 +21,12 @@ module.exports = {
 			if (!pack.onSale) {
 				return message.channel.send(`This pack is currently unavailable.`);
 			}
+			user.balance -= amount*pack.price;
 			Promise.all([
-				User.setPacks(pack, +amount),
-				User.setMoney(user.balance - pack.price*amount)
+				user.setPacks(pack, +amount),
+				user.save()
 			]).then(()=>{
-				message.channel.send(`${amount} "${pack.name}" pack was bought.`);
+				message.channel.send(`${amount} "${pack.name}" ${amount == 1 ? 'pack was' : 'packs were'} bought.`);
 			}).catch((e) => {console.log(e)});
 		} else {
 			const shop = await PacksShop.findAll({ where: { onSale: true }});

@@ -1,17 +1,17 @@
-const UserObj = (require('../classes/User.js'));
+const { Users } = require('../dbObjects');
 module.exports = {
 	name: 'showcards',
 	description: 'shows cards in your inventory.',
 	aliases: ['sc'],
 	async execute(message, args) {
-		const User = new UserObj(message.mentions.users.first() || message.author);
-		user = await User.get();
+		let user = await Users.findOne({ where: { id: message.author.id }});
 		if (user === null){
-			await User.create();
-			user = await User.get();
+			user = await Users.create({ id: message.author.id });
+			console.log('New User created!');
 		}
-		const cards = await User.getCards();
-		if (!cards.length) return message.channel.send(`${User.user.username} has nothing!`);
-		return message.channel.send(`${User.user.username} currently has:\n${cards.map(c => `${c.card.name} - ${c.amount} `).join('\n')}`);
+		user.getCards().then(cards =>{
+			if (!cards.length) return message.channel.send(`You don't have any packs!`);
+			return message.channel.send(`Your card collection:\n${cards.map(c => `${c.card.name} - ${c.amount} `).join('\n')}`);
+		}).catch((e) => {console.log(e)});
 	},
 };
