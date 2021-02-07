@@ -17,16 +17,15 @@ for (const file of commandFiles) {
 const { Users, CurrencyShop } = require('./dbObjects');
 const { Op } = require('sequelize');
 const currency = new Discord.Collection();
-const UserObj = (require('./classes/User.js'));
+
 
 
 client.once('ready', async () => {
 	const storedBalances = await Users.findAll();
 	storedBalances.forEach(b => currency.set(b.user_id, b));
 	console.log(`Logged in as ${client.user.tag}!`);
-	//console.log(storedBalances);
-	//console.log(currency);
 });
+
 
 client.on('message', message => {
 	if (!message.content.startsWith(prefix) || message.author.bot) return;
@@ -47,9 +46,6 @@ client.on('message', message => {
 
 		return message.channel.send(reply);
 	}
-
-	/*const usertest = new UserObj(message.author);
-	usertest.get().then(usr => console.log(usr));*/
 
 	if (!cooldowns.has(command.name)) {
 		cooldowns.set(command.name, new Discord.Collection());

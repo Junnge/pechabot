@@ -36,7 +36,7 @@ module.exports = {
 					loot[i] = commons[Math.floor(Math.random() * Math.floor(commons.length))]
 				} else if (rarity >= 13) {
 					loot[i] = rares[Math.floor(Math.random() * Math.floor(rares.length))]
-				} else if (rarity >= 3 ) {
+				} else if (rarity >= 1 ) {
 					loot[i] = superrares[Math.floor(Math.random() * Math.floor(superrares.length))]
 				} else {
 					loot[i] = ultrarares[Math.floor(Math.random() * Math.floor(ultrarares.length))]
