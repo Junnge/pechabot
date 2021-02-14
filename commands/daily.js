@@ -28,7 +28,7 @@ module.exports = {
 				}).catch((e) => {console.log(e)});
 			}
 		} else {
-			message.channel.send(`${24 - timePassed} hours left before daily bonus.`);
+			message.channel.send(`${24 - timePassed} hours left before daily bonus.`).catch((e) => {console.log(e)});
 		}
 	},
 };

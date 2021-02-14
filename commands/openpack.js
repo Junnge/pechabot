@@ -10,9 +10,21 @@ module.exports = {
 	name: 'openpack',
 	description: 'use this to open pack and get your SSR (commons).',
 	aliases: ['op'],
+	args: true,
+	usage: '<pack\'s ID or name>',
 	async execute(message, args) {
 		if(args.length > 0) {
-			const pack = await PacksShop.findOne({ where: { id: { [Op.like]: args[0]} } });
+			let packname = '';
+			let pack;
+			for (let i = 0; i < args.length; i++){
+				packname += args[i]+' ';
+			}
+			packname = packname.slice(0, -1);
+			if (Number.isInteger(+packname)) {
+				pack = await PacksShop.findOne({ where: { id: { [Op.like]: packname} } });
+			} else {
+				pack = await PacksShop.findOne({ where: { name: { [Op.like]: packname} } });
+			}
 			if (!pack) return message.channel.send(`That pack doesn't exist. To see list of available packs use []buypacks list`);
 
 			let user = await Users.findOne({ where: { id: message.author.id }});
@@ -24,10 +36,10 @@ module.exports = {
 			const userpack = await UserPacks.findOne({ where: { user_id: user.id, pack_id: pack.id }});
 			if (!userpack) return message.channel.send(`You don't have any of these packs.`);
 
-			const commons = await pack.getCards({where: { rarity: 'C'}});
-			const rares = await pack.getCards({where: { rarity: 'R'}});
-			const superrares = await pack.getCards({where: { rarity: 'SR'}});
-			const ultrarares = await pack.getCards({where: { rarity: 'UR'}});
+			const commons = await pack.getCards({	where: { rarity: 'C'}});
+			const rares = await pack.getCards({	where: { rarity: 'R'}});
+			const superrares = await pack.getCards({	where: { rarity: 'SR'}});
+			const ultrarares = await pack.getCards({	where: { rarity: 'UR'}});
 
 			let loot = [];
 			for (let i = 0; i < 5; i++){

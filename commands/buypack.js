@@ -2,14 +2,27 @@ const { PacksShop } = require('../dbObjects');
 const { Users } = require('../dbObjects');
 const { Op } = require('sequelize');
 module.exports = {
-	name: 'buypacks',
+	name: 'buypack',
 	description: 'buying some packs',
 	aliases: ['bp'],
+	usage: '<pack\'s ID or name> <amount>',
 	async execute(message, args) {
 		if(args.length > 0 && args[0] != 'list') {
-			const pack = await PacksShop.findOne({ where: { id: { [Op.like]: args[0]} } });
+			const amount = Number.isInteger(+args[args.length - 1]) && args[args.length - 1] > 0 ? +args[args.length - 1] : 1;
+			args = args.slice(0, -1);
+			let packname = '';
+			let pack;
+			for (let i = 0; i < args.length; i++){
+				packname += args[i]+' ';
+			}
+			packname = packname.slice(0, -1);
+			if (Number.isInteger(+packname)) {
+				pack = await PacksShop.findOne({ where: { id: { [Op.like]: packname} } });
+			} else {
+				pack = await PacksShop.findOne({ where: { name: { [Op.like]: packname} } });
+			}
 			if (!pack) return message.channel.send(`That pack doesn't exist. To see list of available packs use []buypacks list`);
-			const amount = Number.isInteger(+args[1]) ? args[1] : 1;
+			
 			let user = await Users.findOne({ where: { id: message.author.id }});
 			if (user === null){
 				user = await Users.create({ id: message.author.id });

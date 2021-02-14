@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		balance: {
 			type: DataTypes.INTEGER,
-			defaultValue: 1500,
+			defaultValue: 1000,
 			allownNull: false,
 		},
 		dailyStreak: {

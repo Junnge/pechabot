@@ -4,28 +4,19 @@ const { prefix, token } = require('./config.json');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
-
-const cooldowns = new Discord.Collection();
-
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
 	client.commands.set(command.name, command);
 }
+const cooldowns = new Discord.Collection();
 
-const { Users, CurrencyShop } = require('./dbObjects');
+const { Users, PacksShop, UserCards, UserPacks, Cards } = require('./dbObjects');
 const { Op } = require('sequelize');
-const currency = new Discord.Collection();
-
-
 
 client.once('ready', async () => {
-	const storedBalances = await Users.findAll();
-	storedBalances.forEach(b => currency.set(b.user_id, b));
 	console.log(`Logged in as ${client.user.tag}!`);
 });
-
 
 client.on('message', message => {
 	if (!message.content.startsWith(prefix) || message.author.bot) return;
