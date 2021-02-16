@@ -24,15 +24,15 @@ module.exports = {
 
 			pack.getCards().then(cards =>{
 				let p = 0;
-				let mp = Math.floor(cards.length/10);
-				console.log(p, mp);
+				let pageSize = 15;
+				let mp = cards.length % pageSize === 0 ? 0 : Math.floor(cards.length/pageSize);
 				let sendPage = function(page) {
 					let c = [];
-					let le = page == mp ? cards.length - mp*10 : 10;
+					let le = page == mp ? cards.length - mp*pageSize : pageSize;
 					for (let i = 0; i < le; i ++){
-						const rar = cards[page*10+i].rarity;
+						const rar = cards[page*pageSize+i].rarity;
 						const rBadge = rar === 'C' ? '<:C_e2:808832032822132806>' : rar === 'R' ? '<:R_e2:808832032909557801>' : rar === 'SR' ? '<:SR_e2:808832032997376021>' : '<:UR_e2:808832032632602656>';
-						c[i] = `${rBadge} ${cards[page*10+i].name}`
+						c[i] = `${rBadge} ${cards[page*pageSize+i].name}`
 					}
 					return new MessageEmbed()
 					.setColor('#fb7f5c')

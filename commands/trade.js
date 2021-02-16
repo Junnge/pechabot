@@ -85,11 +85,11 @@ module.exports = {
 
 		if (!checkResult.result) return message.channel.send(checkResult.msg);
 		await setTrade(user, target, true);
-		message.channel.send(`${message.mentions.users.first()}, ${message.author} offers you ${userOffer[0].name !== '' ? userOffer.map((elem, index) => `${elem.name} ${elem.amount}` ).join(', ') : 'nothing'}.`)
+		message.channel.send(`${message.mentions.users.first()}, ${message.author} offers you ${userOffer[0].name !== '' ? userOffer.map((elem, index) => `${elem.name} ${elem.amount}` ).join(', ') : 'nothing'}.\nTo accept the trade offer send []taccept <your offer>`)
 		.then( async () => {
 			message.channel.awaitMessages(filter1, { max: 1, time: 120000, errors: ['time'] })
 				.then(async collected => {
-					message.channel.send(`${message.author}, ${message.mentions.users.first()} offers you ${targetOffer[0].name !== '' ? targetOffer.map((elem, index) => `${elem.name} ${elem.amount}` ).join(', ') : 'nothing'} in return.`).then(() => {
+					message.channel.send(`${message.author}, ${message.mentions.users.first()} offers you ${targetOffer[0].name !== '' ? targetOffer.map((elem, index) => `${elem.name} ${elem.amount}` ).join(', ') : 'nothing'} in return.\nTo confirm the trade offer send []taccept`).then(() => {
 						message.channel.awaitMessages(filter2, { max: 1, time: 120000, errors: ['time'] })
 							.then(async collected => {
 								await setTrade(user, target, false);
