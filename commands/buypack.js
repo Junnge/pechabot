@@ -12,7 +12,7 @@ module.exports = {
 			let packname = '';
 			let pack;
 			if (args.length > 1) {
-				const amount = Number.isInteger(+args[args.length - 1]) && args[args.length - 1] > 0 ? +args[args.length - 1] : 1;
+				amount = Number.isInteger(+args[args.length - 1]) && args[args.length - 1] > 0 ? +args[args.length - 1] : 1;
 				args = args.slice(0, -1);
 			}	
 			for (let i = 0; i < args.length; i++){
