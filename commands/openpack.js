@@ -58,7 +58,7 @@ module.exports = {
 			}
 		
 			for (let i = 0; i < loot.length; i++){
-				await user.setCards(loot[i], 1);
+				await user.setCards(loot[i].id, 1);
 			}
 			user.setPacks(pack, -1);
 

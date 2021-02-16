@@ -39,14 +39,14 @@ Users.prototype.setPacks = async function(pack, amount){
 	}
 	return UserPacks.create({ user_id: this.id, pack_id: pack.id, amount: amount });
 }
-Users.prototype.setCards = async function(card, amount){
-	const usercard = await UserCards.findOne({ where: {user_id: this.id, card_id: card.id} });
+Users.prototype.setCards = async function(id, amount){
+	const usercard = await UserCards.findOne({ where: {user_id: this.id, card_id: id} });
 	if (usercard) {
 		usercard.amount += amount;
 		if (usercard.amount == 0) return await usercard.destroy();
 		return await usercard.save();
 	}
-	return UserCards.create({ user_id: this.id, card_id: card.id, amount: amount});
+	return UserCards.create({ user_id: this.id, card_id: id, amount: amount});
 }
 
 module.exports = { Users, PacksShop, UserCards, UserPacks, Cards };

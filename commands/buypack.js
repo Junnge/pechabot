@@ -8,10 +8,13 @@ module.exports = {
 	usage: '<pack\'s ID or name> <amount>',
 	async execute(message, args) {
 		if(args.length > 0 && args[0] != 'list') {
-			const amount = Number.isInteger(+args[args.length - 1]) && args[args.length - 1] > 0 ? +args[args.length - 1] : 1;
-			args = args.slice(0, -1);
+			let amount = 1;
 			let packname = '';
 			let pack;
+			if (args.length > 1) {
+				const amount = Number.isInteger(+args[args.length - 1]) && args[args.length - 1] > 0 ? +args[args.length - 1] : 1;
+				args = args.slice(0, -1);
+			}	
 			for (let i = 0; i < args.length; i++){
 				packname += args[i]+' ';
 			}

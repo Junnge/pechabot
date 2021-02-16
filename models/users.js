@@ -19,5 +19,10 @@ module.exports = (sequelize, DataTypes) => {
 			defaultValue: 0,
 			allownNull: false,
 		},
+		trade: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+			allownNull: false,
+		}
 	});
 };
