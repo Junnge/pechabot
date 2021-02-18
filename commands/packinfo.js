@@ -1,4 +1,4 @@
-const { PacksShop } = require('../dbObjects');
+const { PacksShop, Users, Cards, UserCards } = require('../dbObjects');
 const { Op } = require('sequelize');
 const { MessageEmbed, createReactionCollector } = require('discord.js');
 module.exports = {
@@ -9,6 +9,11 @@ module.exports = {
 	usage: '<pack\'s ID or name>',
 	async execute(message, args) {
 		if(args.length > 0 && args[0] != 'list') {
+			let user = await Users.findOne({ where: { id: message.author.id }});
+			if (user === null){
+				user = await Users.create({ id: message.author.id });
+				console.log('New User created!');
+			}
 			let packname = '';
 			let pack;
 			for (let i = 0; i < args.length; i++){
@@ -22,49 +27,60 @@ module.exports = {
 			}
 			if (!pack) return message.channel.send(`That pack doesn't exist. To see list of available packs use []buypacks list`);
 
-			pack.getCards().then(cards =>{
-				let p = 0;
-				let pageSize = 15;
-				let mp = cards.length % pageSize === 0 ? 0 : Math.floor(cards.length/pageSize);
-				let sendPage = function(page) {
-					let c = [];
-					let le = page == mp ? cards.length - mp*pageSize : pageSize;
-					for (let i = 0; i < le; i ++){
-						const rar = cards[page*pageSize+i].rarity;
-						const rBadge = rar === 'C' ? '<:C_e2:808832032822132806>' : rar === 'R' ? '<:R_e2:808832032909557801>' : rar === 'SR' ? '<:SR_e2:808832032997376021>' : '<:UR_e2:808832032632602656>';
-						c[i] = `${rBadge} ${cards[page*pageSize+i].name}`
+			const cards = await pack.getCards();
+			const usercards = await UserCards.findAll({where: {user_id: user.id}, raw: true, include: {association: 'card', where: {packsShopId: pack.id}}});
+			usercards.sort((a, b) => a.card_id - b.card_id);
+			let cProgress = usercards.length;
+			let cPercent = Math.floor(usercards.length*100/cards.length);
+			for (let i = 0; i < cards.length; i++){
+				if (cards[i].id !== usercards[i]['card.id']) usercards.splice(i, 0, 'empty');
+			}
+	
+			let p = 0;
+			const pageSize = 15;
+			const mp = cards.length % pageSize === 0 ? 0 : Math.floor(cards.length/pageSize);
+			let sendPage = function(page) {
+				let c = [];
+				let le = page == mp ? cards.length - mp*pageSize : pageSize;
+				for (let i = 0; i < le; i++){
+					const rar = cards[page*pageSize+i].rarity;
+					const rBadge = rar === 'C' ? '<:C_e2:808832032822132806>' : rar === 'R' ? '<:R_e2:808832032909557801>' : rar === 'SR' ? '<:SR_e2:808832032997376021>' : '<:UR_e2:808832032632602656>';
+					c[i] = `${rBadge} ${cards[page*pageSize+i].name}`;
+					if (usercards[page*pageSize+i].amount) c[i] += '**   ** **✓**'
+				}
+				return new MessageEmbed()
+				.setColor('#fb7f5c')
+				.setTitle(pack.name+' pack')
+				.addFields(
+					{name: 'Progress '+cPercent+'% ('+cProgress+'/'+cards.length+')', value: c, inline: true},
+				)
+				
+				.setFooter(`Page ${p+1}/${mp+1}`);
+			}			
+
+			return message.channel.send(sendPage(p)).then(async (m) => {			
+				await m.react('⬅️');
+				await m.react('➡️');
+				const filter = (reaction, user) => {
+					return reaction.emoji.name === '⬅️' || reaction.emoji.name === '➡️';
+				};
+				const collector = m.createReactionCollector(filter, { idle: 30000 });
+				collector.on('collect', (reaction, user) => {
+					if (reaction.emoji.name === '⬅️'){
+						p--;
+						if (p < 0) p = mp;
+						m.edit(sendPage(p));
+					} else if (reaction.emoji.name === '➡️'){
+						p++;
+						if (p > mp) p = 0;
+						m.edit(sendPage(p));
 					}
-					return new MessageEmbed()
-					.setColor('#fb7f5c')
-					.setAuthor(pack.name)
-					.setDescription(c)
-					.setFooter(`Page ${p+1}/${mp+1}`);
-				}			
-
-				return message.channel.send(sendPage(p)).then(async (m) => {			
-					await m.react('⬅️');
-					await m.react('➡️');
-					const filter = (reaction, user) => {
-						return reaction.emoji.name === '⬅️' || reaction.emoji.name === '➡️';
-					};
-					const collector = m.createReactionCollector(filter, { idle: 30000 });
-					collector.on('collect', (reaction, user) => {
-						if (reaction.emoji.name === '⬅️'){
-							p--;
-							if (p < 0) p = mp;
-							m.edit(sendPage(p));
-						} else if (reaction.emoji.name === '➡️'){
-							p++;
-							if (p > mp) p = 0;
-							m.edit(sendPage(p));
-						}
-					});
-
-					collector.on('end', collected => {
-						m.reactions.removeAll().catch(error => console.error('Failed to clear reactions: ', error));
-					});
 				});
-			}).catch((e) => {console.log(e)});
+
+				collector.on('end', collected => {
+					m.reactions.removeAll().catch(error => console.error('Failed to clear reactions: ', error));
+				});
+			});
 		}
 	}, 
 };
