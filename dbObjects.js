@@ -13,10 +13,15 @@ const PacksShop = require('./models/packsShop')(sequelize, Sequelize.DataTypes);
 const UserCards = require('./models/userCards')(sequelize, Sequelize.DataTypes);
 const UserPacks = require('./models/userPacks')(sequelize, Sequelize.DataTypes);
 const Cards 		= require('./models/cards')(sequelize, Sequelize.DataTypes); 
+const Market 		= require('./models/market')(sequelize, Sequelize.DataTypes); 
 
 UserPacks.belongsTo(PacksShop, { foreignKey: 'pack_id', as: 'pack' });
 UserCards.belongsTo(Cards, { foreignKey: 'card_id', as: 'card'});
+
 PacksShop.hasMany(Cards);
+Cards.belongsTo(PacksShop, {foreignKey: 'packsShopId', as: 'pack'});
+Users.hasMany(UserCards, {foreignKey: 'user_id', as: 'Card'});
+Market.hasMany(Cards, {sourceKey: 'card_id', foreignKey: 'id'});
 
 Users.prototype.getPacks = async function() {
 	return UserPacks.findAll({
@@ -49,4 +54,4 @@ Users.prototype.setCards = async function(id, amount){
 	return UserCards.create({ user_id: this.id, card_id: id, amount: amount});
 }
 
-module.exports = { Users, PacksShop, UserCards, UserPacks, Cards };
+module.exports = { Users, PacksShop, UserCards, UserPacks, Cards, Market };

@@ -15,6 +15,8 @@ module.exports = {
 			r.forEach((e, i) => {
 				e = e.trim().split(' ');
 				let amount = e[e.length-1];
+				amount = Math.abs(amount);
+				amount = Math.floor(amount);
 				e = e.slice(0, -1);
 				let name = e.join(' ');
 				r[i] = {name: name, amount: amount};
@@ -43,8 +45,8 @@ module.exports = {
 				let card = await Cards.findOne({ where: { name: { [Op.like]: str[i].name } } });
 				if (card === null) return {msg: `"${str[i].name}" does not exist.`, result: false};
 				let usercard = await UserCards.findOne({ where: { card_id: card.id, user_id: u.id }, include: 'card' });
-				if (usercard === null) return {msg: `you do not have a single "${str[i].name}" card .`, result: false};
-				if (usercard.amount < str[i].amount) return {msg: `you only ${usercard.amount} "${str[i].name}" card${usercard.amount > 1 ? s : ''}!`, result: false};
+				if (usercard === null) return {msg: `you do not have a single "${str[i].name}" card.`, result: false};
+				if (usercard.amount < str[i].amount) return {msg: `you only have ${usercard.amount} "${str[i].name}" card${usercard.amount > 1 ? s : ''}!`, result: false};
 				str[i].name = card.name;
 				str[i].id = card.id;
 			}
@@ -73,7 +75,8 @@ module.exports = {
 
 		const filter1 = async response => {
 			let args2 = response.content.split(' ');
-			if (response.author.id !== message.mentions.users.first().id && args2[0] !== prefix+'taccept') return false;
+			console.log(response.author.id === target.id)
+			if (response.author.id !== target.id || args2[0] !== prefix+'taccept') return false;
 			targetOffer = getRequest(args2);
 			let checkResult2 = await checkRequest(target, targetOffer);
 			if (!checkResult2.result) message.channel.send(checkResult2.msg);

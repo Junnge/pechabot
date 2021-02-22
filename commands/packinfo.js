@@ -33,6 +33,7 @@ module.exports = {
 			let cProgress = usercards.length;
 			let cPercent = Math.floor(usercards.length*100/cards.length);
 			for (let i = 0; i < cards.length; i++){
+				if (!usercards[i]) usercards.splice(i, 0, 'empty');
 				if (cards[i].id !== usercards[i]['card.id']) usercards.splice(i, 0, 'empty');
 			}
 	

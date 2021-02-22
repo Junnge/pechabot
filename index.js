@@ -16,6 +16,7 @@ const { Op } = require('sequelize');
 
 client.once('ready', async () => {
 	console.log(`Logged in as ${client.user.tag}!`);
+	client.user.setActivity(`${prefix}help`, { type: 'LISTENING' });
 });
 
 client.on('message', message => {
