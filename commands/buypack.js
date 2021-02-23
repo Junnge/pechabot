@@ -6,6 +6,7 @@ module.exports = {
 	description: 'buying some packs',
 	aliases: ['bp'],
 	usage: '<pack\'s ID or name> <amount>',
+	category: 'Packs',
 	async execute(message, args) {
 		if(args.length > 0 && args[0] != 'list') {
 			let amount = 1;

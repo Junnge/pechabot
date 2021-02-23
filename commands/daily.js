@@ -3,6 +3,7 @@ module.exports = {
 	name: 'daily',
 	description: 'get your daily coins!',
 	aliases: ['d'],
+	category: 'User',
 	async execute(message, args) {
 		let user = await Users.findOne({ where: { id: message.author.id }});
 		if (user === null){

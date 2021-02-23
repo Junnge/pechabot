@@ -7,6 +7,7 @@ module.exports = {
 	aliases: ['pi'],
 	args: true,
 	usage: '<pack\'s ID or name>',
+	category: 'Packs',
 	async execute(message, args) {
 		if(args.length > 0 && args[0] != 'list') {
 			let user = await Users.findOne({ where: { id: message.author.id }});

@@ -6,6 +6,7 @@ module.exports = {
 	aliases: ['mo', 'moffer'],
 	args: true,
 	usage: '<sell || buy> <cardname || id> <amount> <price>',
+	category: 'Market',
 	async execute(message, args) {
 		const [user, created] = await Users.findOrCreate({where: {id: message.author.id}});
 		const price = Math.abs(Math.floor(+args[args.length-1]));

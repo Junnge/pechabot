@@ -3,6 +3,7 @@ module.exports = {
 	name: 'balance',
 	description: 'checking user balance',
 	aliases: ['b'],
+	category: 'User',
 	async execute(message, args) {
 		let user = await Users.findOne({ where: { id: message.author.id }});
 		if (user === null){

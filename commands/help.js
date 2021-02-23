@@ -6,16 +6,40 @@ module.exports = {
 	aliases: ['commands'],
 	usage: '[command name]',
 	cooldown: 5,
+	category: 'General',
 	execute(message, args) {
 		const data = [];
+		
 		const { commands } = message.client;
-
+		
+		
 		if (!args.length) {
-			data.push('Here\'s a list of all my commands:');
-			data.push(commands.map(command => command.name).join(', '));
-			data.push(`\nYou can send \`${prefix}help [command name]\` to get info on a specific command!`);
+			let ar = {};
+			commands.map(command => {
+				let cat = command.category ? command.category : 'General';
+				if (ar[cat]){
+					ar[cat].push(command.name)
+				} else {
+					ar[cat] = [command.name];
+				}				
+			});
+			let embed = {
+				color : '#fb7f5c',
+				title: 'Here\'s a list of all my commands:',
+				fields: [],
+				footer: {
+					text: `You can send ${prefix}help [command name] to get info on a specific command!`
+				} 
+			}
+			Object.keys(ar).map(c => {
+				embed.fields.push({
+					name: c,
+					value: ar[c].map(n => `• ${n}`).join("\n"),
+					inline: true
+				})
+			})
 
-			return message.channel.send(data, { split: true });
+			return message.channel.send({embed: embed});
 		}
 
 		const name = args[0].toLowerCase();

@@ -7,6 +7,7 @@ module.exports = {
 	aliases: ['m'],
 	args: true,
 	usage: '<sell || buy> <filter>',
+	category: 'Market',
 	async execute(message, args) {
 		const offerType = args[0].toLowerCase() === 's' ? 'sell' : args[0].toLowerCase() === 'b' ? 'buy' : args[0].toLowerCase();
 		if (offerType !== 'sell' && offerType !== 'buy' && offerType !== 's' && offerType !== 'b' ) return message.channel.send('You have to specify the offer type!');

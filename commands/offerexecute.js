@@ -8,7 +8,7 @@ module.exports = {
 	aliases: ['oe', 'offere', 'oexecute',],
 	args: true,
 	usage: '<offerID> <amount>',
-	category: 'market',
+	category: 'Market',
 	async execute(message, args) {
 		let [user, created] = await Users.findOrCreate({where: {id: message.author.id}});
 		const offerId = Math.abs(Math.floor(+args[0]));

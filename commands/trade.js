@@ -7,7 +7,8 @@ module.exports = {
 	aliases: ['t'],
 	args: true,
 	usage: '<@user> <card name> <amount>&<coins> <amount>',
-	cooldown: 1,
+	cooldown: 10,
+	category: 'General',
 	async execute(message, args) {
 		if (!message.mentions.users.first()) return message.channel.send('You have to mention a person to trade with.')
 		function getRequest(m){

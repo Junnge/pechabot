@@ -12,6 +12,7 @@ module.exports = {
 	aliases: ['op'],
 	args: true,
 	usage: '<pack\'s ID or name>',
+	category: 'Packs',
 	async execute(message, args) {
 		if(args.length > 0) {
 			let packname = '';

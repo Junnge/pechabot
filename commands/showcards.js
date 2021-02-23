@@ -4,6 +4,7 @@ module.exports = {
 	name: 'showcards',
 	description: 'shows cards in your inventory.',
 	aliases: ['sc'],
+	category: 'User',
 	async execute(message, args) {
 		let user = await Users.findOne({ where: { id: message.author.id }});
 		if (user === null){

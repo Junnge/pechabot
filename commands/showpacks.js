@@ -3,6 +3,7 @@ module.exports = {
 	name: 'showpacks',
 	description: 'shows packs in your inventory.',
 	aliases: ['sp'],
+	category: 'User',
 	async execute(message, args) {
 		let user = await Users.findOne({ where: { id: message.author.id }});
 		if (user === null){

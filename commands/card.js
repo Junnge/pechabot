@@ -4,6 +4,7 @@ module.exports = {
 	name: 'card',
 	description: 'shows card info.',
 	aliases: ['c'],
+	category: 'General',
 	async execute(message, args) {
 		if(args.length > 0) {
 			const cardname = args.join(' ');

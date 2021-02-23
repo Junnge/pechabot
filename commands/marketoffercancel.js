@@ -6,6 +6,7 @@ module.exports = {
 	aliases: ['moc', 'marketofferc', 'marketoc', 'mocancel', 'moffercancel', 'marketocancel'],
 	args: true,
 	usage: '<offer ID>',
+	category: 'Market',
 	async execute(message, args) {
 		const [user, created] = await Users.findOrCreate({where: {id: message.author.id}});
 		const offerId = Math.abs(Math.floor(+args[0]));
