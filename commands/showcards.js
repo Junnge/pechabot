@@ -22,7 +22,6 @@ module.exports = {
 			let sendPage = function(page) {
 				let c = [];
 				let le = page == mp ? cards.length - mp*pageSize : pageSize;
-				console.log(page, mp, p, pageSize, le, cards.length);
 				for (let i = 0; i < le; i ++){
 					const rar = cards[page*pageSize+i].card.rarity;
 					const rBadge = rar === 'C' ? '<:C_e2:808832032822132806>' : rar === 'R' ? '<:R_e2:808832032909557801>' : rar === 'SR' ? '<:SR_e2:808832032997376021>' : '<:UR_e2:808832032632602656>';

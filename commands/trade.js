@@ -75,7 +75,6 @@ module.exports = {
 
 		const filter1 = async response => {
 			let args2 = response.content.split(' ');
-			console.log(response.author.id === target.id)
 			if (response.author.id !== target.id || args2[0] !== prefix+'taccept') return false;
 			targetOffer = getRequest(args2);
 			let checkResult2 = await checkRequest(target, targetOffer);
@@ -96,15 +95,12 @@ module.exports = {
 						message.channel.awaitMessages(filter2, { max: 1, time: 120000, errors: ['time'] })
 							.then(async collected => {
 								await setTrade(user, target, false);
-								console.log(userOffer, targetOffer);
 								for (let i = 0; i < userOffer.length; i++){
 									if (userOffer[i].name == '') break;
 									if (userOffer[i].name == 'coins'){
 										user.balance += -userOffer[i].amount;
-										console.log('user.b: '+user.balance);
 										await user.save();
-										target.balance += +userOffer[i].amount;		
-										console.log('target.b: '+target.balance);								
+										target.balance += +userOffer[i].amount;									
 										await target.save();
 									} else {
 										await user.setCards(userOffer[i].id, -userOffer[i].amount);
@@ -127,7 +123,6 @@ module.exports = {
 							})
 							.catch(async collected => {
 								await setTrade(user, target, false);
-								console.log(collected);
 								message.channel.send(`${message.author}, trade time is out, offer closed.`);
 							});
 					});

@@ -8,11 +8,10 @@ module.exports = {
 	usage: '<sell || buy> <cardname || id> <amount> <price>',
 	async execute(message, args) {
 		const [user, created] = await Users.findOrCreate({where: {id: message.author.id}});
-		const price = +args[args.length-1];
+		const price = Math.abs(Math.floor(+args[args.length-1]));
 		const amount = Math.abs(Math.floor(+args[args.length-2]));
 		const offerType = args[0].toLowerCase();
 		let card = args.slice(1, args.length-2).join(' ');
-		console.log(`card: ${card}, amount: ${amount}, price: ${price}, type: ${offerType}`);
 		if (offerType !== 'sell' && offerType !== 'buy' && offerType !== 's' && offerType !== 'b' ) return message.channel.send(`${message.author}, you have to specify the offer type!`);
 		if (!Number.isInteger(price) || price <= 0) return message.channel.send(`${message.author}, you have to specify the amount value!`);
 		if (!Number.isInteger(amount) || amount <= 0) return message.channel.send(`${message.author}, you have to specify the price value!`);
@@ -48,9 +47,7 @@ module.exports = {
 				price: price,
 				offerType: 'buy'
 			});
-			return message.channel.send(`${message.author}, your offer to buy "${card.name}" x ${amount} at a price of ${price} has been submitted.\n100 coins have been deducted from your balance.`);
+			return message.channel.send(`${message.author}, your offer to buy "${card.name}" x ${amount} at a price of ${price} has been submitted.\n${amount*price} coins have been deducted from your balance.`);
 		}
-		console.log(await Market.findAll());
-
 	}, 
 };

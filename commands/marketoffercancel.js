@@ -8,7 +8,8 @@ module.exports = {
 	usage: '<offer ID>',
 	async execute(message, args) {
 		const [user, created] = await Users.findOrCreate({where: {id: message.author.id}});
-		const offerId = +args[0];
+		const offerId = Math.abs(Math.floor(+args[0]));
+		if (!Number.isInteger(offerId)) return message.channel.send('Incorrect offer ID input!');
 		const offer = await Market.findOne({
 			where: {
 				id: offerId
@@ -24,7 +25,7 @@ module.exports = {
 		}
 		if (offer.offerType === 'sell') {
 			await user.setCards(offer.card_id, +offer.amount);
-			message.channel.send(`Offer (ID. ${offer.id}) canceled. "${offer.cards[0].name}" x ${amount} have been returned to your collection.`);
+			message.channel.send(`Offer (ID. ${offer.id}) canceled. "${offer.cards[0].name}" x ${offer.amount} have been returned to your collection.`);
 		}
 		await offer.destroy();
 	}, 

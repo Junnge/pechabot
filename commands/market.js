@@ -27,7 +27,7 @@ module.exports = {
 		if (args[0]){
 			for (let i = 0; i < args.length; i++){
 				let f = args[i].trim().split('=')
-				f[0] = f[0].trim(); f[1] = f[1].trim();
+				f[0] = f[0].trim();
 				if (f[0] === 'card' || f[0] === 'c'){
 					if (Number.isInteger(+f[1].trim())){
 						searchFilter.where['$cards.id$'] = +f[1].trim(); break;
