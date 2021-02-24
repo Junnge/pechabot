@@ -26,7 +26,7 @@ module.exports = {
 			} else {
 				pack = await PacksShop.findOne({ where: { name: { [Op.like]: packname} } });
 			}
-			if (!pack) return message.channel.send(`That pack doesn't exist. To see list of available packs use []buypacks list`);
+			if (!pack) return message.channel.send(`${message.author}, this pack doesn't exist. To see list of available packs use []buypacks list`);
 
 			let user = await Users.findOne({ where: { id: message.author.id }});
 			if (user === null){
@@ -35,12 +35,12 @@ module.exports = {
 			}
 
 			const userpack = await UserPacks.findOne({ where: { user_id: user.id, pack_id: pack.id }});
-			if (!userpack) return message.channel.send(`You don't have any of these packs.`);
+			if (!userpack) return message.channel.send(`${message.author}, you don't have any of these packs.`);
 
-			const commons = await pack.getCards({	where: { rarity: 'C'}});
+			const commons = await pack.getCards({ where: { rarity: 'C'}});
 			const rares = await pack.getCards({	where: { rarity: 'R'}});
-			const superrares = await pack.getCards({	where: { rarity: 'SR'}});
-			const ultrarares = await pack.getCards({	where: { rarity: 'UR'}});
+			const superrares = await pack.getCards({ where: { rarity: 'SR'}});
+			const ultrarares = await pack.getCards({ where: { rarity: 'UR'}});
 
 			let loot = [];
 			for (let i = 0; i < 5; i++){
@@ -86,7 +86,7 @@ module.exports = {
 			img = await loadImage(loot[4].imgUrl);
 			await context.drawImage(img, width*2-width/2, 20);
 			const buffer = new MessageAttachment(canvas.toBuffer());
-			return message.channel.send(buffer);
+			return message.channel.send(`${message.author}`, buffer);
 		} 
 	}, 
 };

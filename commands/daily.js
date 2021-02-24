@@ -19,17 +19,17 @@ module.exports = {
 				user.dailyStreak = 0;
 				user.dailyStamp = Date.now();
 				user.save().then(()=>{
-					message.channel.send(`100 coins have been added.\nYou reached 5 day daily streak. 100 additional coins have been added.\nYour balance is now ${user.balance}.`);
+					message.channel.send(`${message.author}, 100 coins have been added.\nYou reached 5 day daily streak. 100 additional coins have been added.\nYour balance is now ${user.balance}.`);
 				}).catch((e) => {console.log(e)});
 			} else {
 				user.balance += 100;
 				user.dailyStamp = Date.now();
 				user.save().then(()=>{
-					message.channel.send(`100 coins have been added, your balance is now ${user.balance}.\nYour daily streak is ${user.dailyStreak}. Reach streak 5 to receive bonus coins!`);
+					message.channel.send(`${message.author}, 100 coins have been added, your balance is now ${user.balance}.\nYour daily streak is ${user.dailyStreak}. Reach streak 5 to receive bonus coins!`);
 				}).catch((e) => {console.log(e)});
 			}
 		} else {
-			message.channel.send(`${24 - timePassed} hours left before daily bonus.`).catch((e) => {console.log(e)});
+			message.channel.send(`${message.author}, ${24 - Math.abs(Math.floor((user.dailyStamp - Date.now()) / (1000*60*60)))}h ${60 - Math.abs(Math.floor((user.dailyStamp - Date.now()) / (1000*60)))}m left before daily bonus.`).catch((e) => {console.log(e)});
 		}
 	},
 };

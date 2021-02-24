@@ -2,19 +2,14 @@ const { Market, Cards, PacksShop } = require('../dbObjects');
 const { Op } = require('sequelize');
 const { MessageEmbed, createReactionCollector } = require('discord.js');
 module.exports = {
-	name: 'marketmyoffers',
+	name: 'myoffers',
 	description: 'shows your active offers at the market',
-	aliases: ['mmo', 'marketmyo', 'mmyo', 'marketmo', 'mmoffers', 'mmyoffers'],
-	args: true,
+	aliases: ['mo', 'yo', 'moffers'],
 	usage: '<buy || sell>',
 	category: 'Market',
 	async execute(message, args) {
-		const offerType = args[0].toLowerCase() === 's' ? 'sell' : args[0].toLowerCase() === 'b' ? 'buy' : args[0].toLowerCase();
-		if (offerType !== 'sell' && offerType !== 'buy' && offerType !== 's' && offerType !== 'b' ) return message.channel.send('You have to specify the offer type!');
-		
 		let searchFilter = {
 			where: { 
-				offerType: offerType,
 				user_id: message.author.id
 			}, include: {
 				model: Cards				
@@ -29,7 +24,7 @@ module.exports = {
 		
 		let sendPage = function(page) {
 			let le = page == mp ? market.length - mp*pageSize : pageSize;
-			let msg = new MessageEmbed().setColor('#fb7f5c').setTitle(`Your market offers for ${offerType}`);
+			let msg = new MessageEmbed().setColor('#fb7f5c').setTitle(`${message.author.username}'s market offers`);
 			if (!market[0]) return msg.addFields(
 					{
 						name: `You currently have no active offers`,
@@ -44,7 +39,8 @@ module.exports = {
 				field[i] = rBadge + '`' + market[page*pageSize+i]['cards.name'].padEnd(25, ' ') + '` ';
 				field[i] += '`' + market[page*pageSize+i]['amount'].padStart(7, ' ') + '` ';
 				field[i] += '`' + market[page*pageSize+i]['price'].padStart(6, ' ') + '` ';
-				field[i] += '`' + market[page*pageSize+i]['id'].toString().padStart(6, ' ') + '`';
+				field[i] += '`' + market[page*pageSize+i]['id'].toString().padStart(6, ' ') + '` ';
+				field[i] += '`' + market[page*pageSize+i]['offerType'].padEnd(4, ' ') + '`';
 			}
 			return msg.addFields(
 					{

@@ -11,8 +11,8 @@ module.exports = {
 			console.log('New User created!');
 		}
 		user.getPacks().then(packs => {
-			if (!packs.length) return message.channel.send(`You don't have any packs!`);
-			return message.channel.send(`You currently have:\n${packs.map(p => `${p.pack.name} - ${p.amount} `).join('\n')}`);
+			if (!packs.length) return message.channel.send(`${message.author}, you don't have any packs!`);
+			return message.channel.send(`${message.author}, you currently have:\n${packs.map(p => `${p.pack.name} - ${p.amount} `).join('\n')}`);
 		}).catch((e) => {console.log(e)});
 	},
 };

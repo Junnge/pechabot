@@ -14,34 +14,34 @@ module.exports = {
 		const offerId = Math.abs(Math.floor(+args[0]));
 		let amount = Math.abs(Math.floor(+args[1]));
 		if (!amount) amount = 1;
-		if (!Number.isInteger(offerId)) return message.channel.send('Incorrect offer ID input!');
-		if (!Number.isInteger(amount)) return message.channel.send('Incorrect amount input!');
+		if (!Number.isInteger(offerId)) return message.channel.send(`${message.author}, incorrect offer ID input!`);
+		if (!Number.isInteger(amount)) return message.channel.send(`${message.author}, incorrect amount input!`);
 		
 		let offer = await Market.findOne({ where: { id: offerId }, include: Cards});
 
-		const rar = offer.cards[0].rarity;
-		const rBadge = rar === 'C' ? '<:C_e2:808832032822132806>' : rar === 'R' ? '<:R_e2:808832032909557801>' : rar === 'SR' ? '<:SR_e2:808832032997376021>' : '<:UR_e2:808832032632602656>';
-			
 		const filter = response => {
 			return (response.content === prefix+'accept' || response.content === prefix+'cancel') && response.author.id === user.id;
 		};
+
+		if (!Number.isInteger(amount)) return message.channel.send(`${message.author}, you have to specify the amount of offers you want to make.`);
+		if (!offer) return message.channel.send(`${message.author}, that offer doesn\'t exist!`);
 
 		let embed = {
 			color: '#fb7f5c',
 			title: `Offer ID. ${offer.id}`,
 			description: ''
 		};
-
-		if (!Number.isInteger(amount)) return message.channel.send(`${message.author}, you have to specify the amount of offers you want to make.`);
-		if (!offer) return message.channel.send('That offer doesn\'t exist!');
-
+		
+		const rar = offer.cards[0].rarity;
+		const rBadge = rar === 'C' ? '<:C_e2:808832032822132806>' : rar === 'R' ? '<:R_e2:808832032909557801>' : rar === 'SR' ? '<:SR_e2:808832032997376021>' : '<:UR_e2:808832032632602656>';
+		
 		if (offer.offerType === 'buy'){
 			let userCard = await UserCards.findOne({ where: { user_id: user.id,	card_id: offer.card_id }, raw: true });
-			if (!userCard) return message.channel.send(`You don\'t have any "${offer.cards[0].name}" cards.`);
-			if (amount > offer.amount) return message.channel.send(`With this offer you can sell no more than ${offer.amount} cards`);
-			if (amount > userCard.amount) return message.channel.send(`You don\'t have enough "${offer.cards[0].name}" cards to execute this offer`);
+			if (!userCard) return message.channel.send(`${message.author}, you don\'t have any "${offer.cards[0].name}" cards.`);
+			if (amount > offer.amount) return message.channel.send(`${message.author}, with this offer you can sell no more than ${offer.amount} cards`);
+			if (amount > userCard.amount) return message.channel.send(`${message.author}, you don\'t have enough "${offer.cards[0].name}" cards to execute this offer`);
 			
-			embed.description = `${rBadge}${offer.cards[0].name} x ${amount} will be sold to for a total value of ${amount*offer.price} coins.`;
+			embed.description = `${rBadge}\`${offer.cards[0].name}\` x ${amount} will be sold to for a total value of ${amount*offer.price} coins.`;
 			
 			message.channel.send({ embed: embed}).then(async m => {
 				await m.react('✅');
@@ -73,7 +73,7 @@ module.exports = {
 							amount = userCard.amount;
 						}
 						embed.color = '#77B255';
-						embed.description = `You have successfully sold ${rBadge}${offer.cards[0].name} x ${amount} for ${amount*offer.price} coins.`;
+						embed.description = `You have successfully sold ${rBadge}\`${offer.cards[0].name}\` x ${amount} for ${amount*offer.price} coins.`;
 						await user.setCards(offer.card_id, -amount);
 						user.balance += amount*offer.price;
 						await user.save();
@@ -104,7 +104,7 @@ module.exports = {
 			if (amount > offer.amount) return message.channel.send(`With this offer you can buy no more than ${offer.amount} cards`);
 			if (user.balance < amount*offer.price) return message.channel.send(`Your balance is ${user.balance}, to execute this offer your need ${amount*offer.price} coins.`);
 			
-			embed.description = `${rBadge}${offer.cards[0].name} x ${amount} will be bought with a total value of ${amount*offer.price} coins.`;
+			embed.description = `${rBadge}\`${offer.cards[0].name}\` x ${amount} will be bought with a total value of ${amount*offer.price} coins.`;
 			message.channel.send({ embed: embed}).then(async m => {
 				await m.react('✅');
 				await m.react('<:cancel:813850876711272478>');
@@ -132,7 +132,7 @@ module.exports = {
 							return m.edit({ embed: embed}).catch(e => {});
 						}
 						embed.color = '#77B255';
-						embed.description = `You have successfully bought ${rBadge}${offer.cards[0].name} x ${amount} for ${amount*offer.price} coins.`;
+						embed.description = `You have successfully bought ${rBadge}\`${offer.cards[0].name}\` x ${amount} for ${amount*offer.price} coins.`;
 						user.balance -= amount*offer.price;
 						await user.setCards(offer.card_id, amount);
 						await user.save();
