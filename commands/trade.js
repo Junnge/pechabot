@@ -25,13 +25,6 @@ module.exports = {
 			return r;
 		}
 
-		async function setTrade(u, t, status){
-					u.trade = status;
-					t.trade = status;
-					await u.save();
-					await t.save();
-		}
-
 		async function checkRequest(u, str) {
 			let inputCardNames = [];
 			for (let i = 0; i < str.length; i++){
@@ -54,48 +47,41 @@ module.exports = {
 			return {msg: ``, result: true};
 		}
 
-		let user = await Users.findOne({ where: { id: message.author.id }});
-		if (user === null){
-			user = await Users.create({ id: message.author.id });
-			console.log('New User created!');
-		}
+		let [user, ucreated] = await Users.findOrCreate({where: {id: message.author.id}});
+		let [target, tcreated] = await Users.findOrCreate({ where: { id: message.mentions.users.first().id }});		
 		
-		let target = await Users.findOne({ where: { id: message.mentions.users.first().id }});
-		if (target === null){
-			target = await Users.create({ id: message.mentions.users.first().id });
-			console.log('New User created!');
-		}
-
-		await setTrade(user, target, false);
-		if (user.id == target.id) return message.channel.send(`${message.author}, you cannot trade with yourself!`);
-		if (user.trade) return message.channel.send(`You are already in trade, ${message.author}!`);
-		if (target.trade) return message.channel.send(`${message.mentions.users.first()} is already in trade!`);
+		//if (user.id == target.id) return message.channel.send(`${message.author}, you cannot trade with yourself!`);
 		let userOffer = getRequest(args);
 		let checkResult = await checkRequest(user, userOffer);
 		let targetOffer;
 
 		const filter1 = async response => {
 			let args2 = response.content.split(' ');
-			if (response.author.id !== target.id || args2[0] !== prefix+'taccept') return false;
+			if (response.author.id !== target.id || (args2[0] !== prefix+'accept' && args2[0] !== prefix+'cancel' && args2[0] !== prefix+'deny')) return false;
+			if (args2[0] === prefix+'cancel' || args2[0] === prefix+'deny') return true;
 			targetOffer = getRequest(args2);
 			let checkResult2 = await checkRequest(target, targetOffer);
-			if (!checkResult2.result) message.channel.send(checkResult2.msg);
+			if (!checkResult2.result) message.channel.send(`${response.author}, ${checkResult2.msg}`);
 			return checkResult2.result;
 		};
+
 		const filter2 = response => {
-			return response.author.id === message.author.id && response.content === prefix+'taccept';
+			return response.author.id === message.author.id && response.content === prefix+'accept';
 		};
 
-		if (!checkResult.result) return message.channel.send(checkResult.msg);
-		await setTrade(user, target, true);
-		message.channel.send(`${message.mentions.users.first()}, ${message.author} offers you ${userOffer[0].name !== '' ? userOffer.map((elem, index) => `${elem.name} ${elem.amount}` ).join(', ') : 'nothing'}.\nTo accept the trade offer send []taccept <your offer>`)
+		if (!checkResult.result) return message.channel.send(`${message.author}, ${checkResult.msg}`);
+		message.channel.send(`${message.mentions.users.first()}, ${message.author} offers you ${userOffer[0].name !== '' ? userOffer.map((elem, index) => `${elem.name} ${elem.amount}` ).join(', ') : 'nothing'}.\nTo accept the trade offer send []accept <your offer>, to end trade send []cancel.`)
 		.then( async () => {
 			message.channel.awaitMessages(filter1, { max: 1, time: 120000, errors: ['time'] })
 				.then(async collected => {
-					message.channel.send(`${message.author}, ${message.mentions.users.first()} offers you ${targetOffer[0].name !== '' ? targetOffer.map((elem, index) => `${elem.name} ${elem.amount}` ).join(', ') : 'nothing'} in return.\nTo confirm the trade offer send []taccept`).then(() => {
+					console.log(targetOffer);
+					message.channel.send(`${message.author}, ${message.mentions.users.first()} offers you ${targetOffer[0].name !== '' ? targetOffer.map((elem, index) => `${elem.name} ${elem.amount}` ).join(', ') : 'nothing'} in return.\nTo confirm the trade offer send []accept, to end trade send []cancel.`).then(() => {
 						message.channel.awaitMessages(filter2, { max: 1, time: 120000, errors: ['time'] })
 							.then(async collected => {
-								await setTrade(user, target, false);
+								let c13 = await checkRequest(user, userOffer);
+								let c14 = await checkRequest(target, targetOffer);
+								if (!c13.result || !c14.result) return message.channel.send('err, trade closed.');
+														
 								for (let i = 0; i < userOffer.length; i++){
 									if (userOffer[i].name == '') break;
 									if (userOffer[i].name == 'coins'){
@@ -123,13 +109,13 @@ module.exports = {
 								message.channel.send(`trade confirm`);
 							})
 							.catch(async collected => {
-								await setTrade(user, target, false);
+								console.log(collected);
 								message.channel.send(`${message.author}, trade time is out, offer closed.`);
 							});
 					});
 				})
 				.catch(async collected => {
-					await setTrade(user, target, false);
+					console.log(collected);
 					message.channel.send(`${message.author}, trade time is out, offer closed.`);
 				});
 		});
