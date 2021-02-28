@@ -11,7 +11,7 @@ module.exports = {
 	async execute(message, args) {
 			const cardname = args.join(' ');
 			const card = await Cards.findAll({ where: { name: { [Op.substring]: cardname } }, include: 'pack', raw: true });
-			if (!card) return message.channel.send(`${message.author}, that card doesn't exist.`);
+			if (!card[0]) return message.channel.send(`${message.author}, that card doesn't exist.`);
 			if (card.length > 1){
 				return message.channel.send(`${message.author}, I found ${card.length} cards for your request:\n${card.map(c => `• ${c.name}`).join('\n')}`);	
 			} 

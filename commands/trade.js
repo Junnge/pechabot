@@ -50,7 +50,7 @@ module.exports = {
 		let [user, ucreated] = await Users.findOrCreate({where: {id: message.author.id}});
 		let [target, tcreated] = await Users.findOrCreate({ where: { id: message.mentions.users.first().id }});		
 		
-		//if (user.id == target.id) return message.channel.send(`${message.author}, you cannot trade with yourself!`);
+		if (user.id == target.id) return message.channel.send(`${message.author}, you cannot trade with yourself!`);
 		let userOffer = getRequest(args);
 		let checkResult = await checkRequest(user, userOffer);
 		let targetOffer;

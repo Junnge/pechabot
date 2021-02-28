@@ -13,7 +13,7 @@ module.exports = {
 		}
 		user.getCards().then(cards =>{
 			if (!cards.length) return message.channel.send(`You don't have any cards!`);			
-			if (args[0] == 'a') cards.sort((a, b) => (a.card.name > b.card.name) ? 1 : (a.card.name === b.card.name) ? ((a.size > b.size) ? 1 : -1) : -1 );
+			if (args[0] == 'a') cards.sort((a, b) => (a.amount < b.amount) ? 1 : (a.card.name === b.card.name) ? ((a.size > b.size) ? 1 : -1) : -1 );
 			if (args[0] == 'r') cards.sort((a, b) => (a.card.rarity > b.card.rarity) ? 1 : (a.card.rarity === b.card.rarity) ? ((a.card.name > b.card.name) ? 1 : -1) : -1 );
 			if (args[0] == 'r-') cards.sort((a, b) => (a.card.rarity < b.card.rarity) ? 1 : (a.card.rarity === b.card.rarity) ? ((a.card.name < b.card.name) ? 1 : -1) : -1 );
 

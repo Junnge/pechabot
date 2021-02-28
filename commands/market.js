@@ -5,16 +5,31 @@ module.exports = {
 	name: 'market',
 	description: 'show market\'s offers',
 	aliases: ['m'],
-	args: true,
-	usage: '<sell || buy> <filter>',
+	args: false,
+	usage: '<filter>',
 	category: 'Market',
+	guide: `
+The market is the place where you can post offers to sell extra cards or buy the ones you need.
+To view the list of active offers use the command []market <filters>
+(you can specify the filters you need by separating them with &).
+Filters:
+• \`<sell || buy>\` - type of offer (for sale or purchase)
+• \`<card=cardname || id>\` - the specific card
+• \`<pack=packname || id>\` cards only from the specified pack
+• \`<rarity=c || r || sr || ur>\` - only cards of the specified rarity
+• \`<price>\` - sort offers by price
+To create your offer, use \`[]offer <offerType> <cardName> <amount> <price>\`
+Example: \`[]offer sell chen 3 100\`
+This will put 3 of your cards up for sale at a cost of 100 coins each.
+To make a deal, using an active offer, use []offerexecute <offerID> <amount>
+	`,
 	async execute(message, args) {
-		const offerType = args[0].toLowerCase() === 's' ? 'sell' : args[0].toLowerCase() === 'b' ? 'buy' : args[0].toLowerCase();
-		if (offerType !== 'sell' && offerType !== 'buy' && offerType !== 's' && offerType !== 'b' ) return message.channel.send(`${message.author}, you have to specify the offer type!`);
+		//const offerType = args[0].toLowerCase() === 's' ? 'sell' : args[0].toLowerCase() === 'b' ? 'buy' : args[0].toLowerCase();
+		//if (offerType !== 'sell' && offerType !== 'buy' && offerType !== 's' && offerType !== 'b' ) return message.channel.send(`${message.author}, you have to specify the offer type!`);
 		
 		let searchFilter = {
 			where: { 
-				offerType: offerType
+				
 			}, include: {
 				model: Cards, 
 				include: {
@@ -24,36 +39,45 @@ module.exports = {
 			}, raw: true
 		}
 
-		args = args.slice(1,args.length).join(' ').split('&');
+		args = args.join(' ').split('&');
+		console.log(args);
 		if (args[0]){
 			for (let i = 0; i < args.length; i++){
 				let f = args[i].trim().split('=')
 				f[0] = f[0].trim();
+				console.log(f);
+				if (f[0] === 's' || f[0] === 'sell' || f[0] === 'b' || f[0] === 'buy'){
+					searchFilter.where['offerType'] = { [Op.startsWith]: f[0].trim() };	
+				}
 				if (f[0] === 'card' || f[0] === 'c'){
-					if (Number.isInteger(+f[1].trim())){
-						searchFilter.where['$cards.id$'] = +f[1].trim(); break;
+					if (f[1]){
+						if (Number.isInteger(+f[1].trim())){
+							searchFilter.where['$cards.id$'] = +f[1].trim(); break;
+						}
+						searchFilter.where['$cards.name$'] = { [Op.substring]: f[1].trim() }; break;
 					}
-					searchFilter.where['$cards.name$'] = { [Op.like]: f[1].trim() }; break;
-				} else if (f[0] === 'series' || f[0] === 's'){
-					if (Number.isInteger(+f[1].trim())){
+				} else if (f[0] === 'pack' || f[0] === 'p'){
+					if (f[1]) {
+						if (Number.isInteger(+f[1].trim())){
 						searchFilter.where['$cards.pack.id$'] = +f[1].trim();
-					} else {
-						searchFilter.where['$cards.pack.name$'] = { [Op.like]: f[1].trim() };
-					}					
+						} else {
+							searchFilter.where['$cards.pack.name$'] = { [Op.substring]: f[1].trim() };
+						}	
+					}									
 				} else if (f[0] === 'rarity' || f[0] === 'r'){
-					searchFilter.where['$cards.rarity$'] = { [Op.like]: f[1].trim() };
+					if (f[1]) searchFilter.where['$cards.rarity$'] = { [Op.like]: f[1].trim() };
+					
 				}
 			}
 		}
 		let market = await Market.findAll(searchFilter);
-
 		let p = 0;
 		const pageSize = 10;
 		const mp = market.length % pageSize === 0 ? 0 : Math.floor(market.length/pageSize);
 		
 		let sendPage = function(page) {
 			let le = page == mp ? market.length - mp*pageSize : pageSize;
-			let msg = new MessageEmbed().setColor('#fb7f5c').setTitle(`Market offers for ${offerType}`);
+			let msg = new MessageEmbed().setColor('#fb7f5c').setTitle(`Market offers`);
 			if (!market[0]) return msg.addFields(
 					{
 						name: `No active offers currently`,
@@ -68,7 +92,8 @@ module.exports = {
 				field[i] = rBadge + '`' + market[page*pageSize+i]['cards.name'].padEnd(25, ' ') + '` ';
 				field[i] += '`' + market[page*pageSize+i]['amount'].padStart(7, ' ') + '` ';
 				field[i] += '`' + market[page*pageSize+i]['price'].padStart(6, ' ') + '` ';
-				field[i] += '`' + market[page*pageSize+i]['id'].toString().padStart(6, ' ') + '`';
+				field[i] += '`' + market[page*pageSize+i]['id'].toString().padStart(6, ' ') + '` ';
+				field[i] += '`' + market[page*pageSize+i]['offerType'].toString().padEnd(5, ' ') + '` ';
 			}
 			return msg.addFields(
 					{
