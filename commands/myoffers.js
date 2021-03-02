@@ -58,7 +58,7 @@ module.exports = {
 				return reaction.emoji.name === '⬅️' || reaction.emoji.name === '➡️';
 			};
 			const collector = m.createReactionCollector(filter, { idle: 30000 });
-			collector.on('collect', (reaction, user) => {
+			collector.on('collect', async (reaction, user) => {
 				if (reaction.emoji.name === '⬅️'){
 					p--;
 					if (p < 0) p = mp;
@@ -67,6 +67,14 @@ module.exports = {
 					p++;
 					if (p > mp) p = 0;
 					m.edit(sendPage(p));
+				}
+				const userReactions = m.reactions.cache.filter(reaction => reaction.users.cache.has(user.id));
+				try {
+					for (const reaction of userReactions.values()) {
+						await reaction.users.remove(user.id);
+					}
+				} catch (error) {
+					console.error('Failed to remove reactions.');
 				}
 			});
 

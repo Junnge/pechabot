@@ -44,7 +44,10 @@ module.exports = {
 
 			let loot = [];
 			for (let i = 0; i < 5; i++){
+				let maxR = 100;
 				let rarity = Math.floor(Math.random() * Math.floor(100));
+				if (rarity < maxR) maxR = rarity;
+				if (i == 4 && maxR >= 50) rarity = 49;
 				if (rarity >= 50) {
 					loot[i] = commons[Math.floor(Math.random() * Math.floor(commons.length))]
 				} else if (rarity >= 13) {

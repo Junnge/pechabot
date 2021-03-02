@@ -6,5 +6,8 @@
     "jimp": "^0.16.1",
     "sequelize": "^6.3.5",
     "sqlite3": "^5.0.0"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.2.0"
   }
 }
